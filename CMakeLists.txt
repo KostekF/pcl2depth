@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 2.8.3)
+#cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(pcl2depth)
 
+set (CMAKE_CXX_STANDARD 11)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -9,6 +11,7 @@ project(pcl2depth)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  camera_info_manager
   std_msgs
   message_runtime
   cv_bridge 
@@ -58,6 +61,13 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 
+set(SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp ${PROJECT_SOURCE_DIR}/src/PointCloud2ToDepth.cpp ${PROJECT_SOURCE_DIR}/include/pcl2depth)
 
-add_executable(pcl2depth src/main.cpp)
+add_executable(pcl2depth ${SOURCES})
+
+
+
+#add_executable(pcl2depth src/main.cpp)
+target_include_directories(pcl2depth PRIVATE ${PROJECT_SOURCE_DIR}/include/pcl2depth)
 target_link_libraries(pcl2depth ${catkin_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${OpenCV_LIBRARIES})
+

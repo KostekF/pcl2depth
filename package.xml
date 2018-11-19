@@ -55,6 +55,10 @@
   <build_depend>libpcl-all-dev</build_depend>
  <exec_depend>libpcl-all</exec_depend>
   
+ <build_depend>camera_info_manager</build_depend> 
+<exec_depend>camera_info_manager</exec_depend> 
+ 
+ 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>roscpp</exec_depend>
@@ -68,6 +72,7 @@
 <build_export_depend>message_generation</build_export_depend> 
 <exec_depend>message_runtime</exec_depend> 
 <exec_depend>image_transport</exec_depend> 
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
