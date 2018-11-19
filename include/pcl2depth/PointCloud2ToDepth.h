@@ -34,8 +34,8 @@ public:
 private:
   ros::NodeHandle nh_;
  // sensor_msgs::Image image_; //cache the image message
-  std::string cloud_topic_; //default input
-  std::string depthImage_topic_; //default output
+  std::string cloud_topic_; //default cloud input
+  std::string depthImage_topic_; //default depth output
   ros::Subscriber sub_; //cloud subscriber
   ros::Publisher image_pub_; //image message publisher
   
@@ -43,7 +43,7 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_; //camera_info pointer
   ros::NodeHandle camera_nh_;
   ros::Publisher cam_info_pub_; //camera_info message publisher
- 
+    std::string camInfo_topic_; //default output
 };
 
 #endif

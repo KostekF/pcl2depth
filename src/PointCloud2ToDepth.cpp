@@ -54,23 +54,36 @@
     header.stamp = ros::Time::now(); // time
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, depthImage_);
     img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
-      image_pub_.publish(img_msg); 
+  
+    
+    sensor_msgs::CameraInfoPtr camInfoPtr(new sensor_msgs::CameraInfo(cinfo_->getCameraInfo())); //get current cameraInfo data
+    camInfoPtr->header.stamp=header.stamp;
+
+    
+    
+    
+    image_pub_.publish(img_msg); 
             
+    
+    
+    
+       
+    //publish camera_info
+   // sensor_msgs:Header cameraHeader;
+   // cameraHeader.
+   
+    cam_info_pub_.publish(camInfoPtr);
     }
     catch (std::runtime_error e)
     {
       ROS_ERROR_STREAM("Error in converting cloud to depth image message: "
                         << e.what());
     }
-    
-  
-    
-    
-    
+ 
   }
 
  
- PointCloud2ToDepth::PointCloud2ToDepth() : cloud_topic_("sick_mrs6xxx/cloud"),depthImage_topic_("depthFromPcl")
+ PointCloud2ToDepth::PointCloud2ToDepth() : cloud_topic_("sick_mrs6xxx/cloud"),depthImage_topic_("depthFromPcl"),camInfo_topic_("camera/camera_info")
   {
       ///DO i need two node handlers for two topics? or another node handle for camera info?
       
@@ -82,10 +95,11 @@
     //print some info about the node
     std::string r_ct = nh_.resolveName (cloud_topic_);
     std::string r_it = nh_.resolveName (depthImage_topic_);
+     std::string camInfo_it = nh_.resolveName (camInfo_topic_);
     ROS_INFO_STREAM("Listening for incoming data on topic " << r_ct );
     ROS_INFO_STREAM("Publishing image on topic " << r_it );
     
-  
+   ROS_INFO_STREAM("Publishing camera_info on topic " << camInfo_it );
     
     //creating camera_info for depth_nav_tools package
     cinfo_=std::make_shared<camera_info_manager::CameraInfoManager>(camera_nh_);
@@ -102,7 +116,7 @@
     else
         std::cout<<"error validating url"<<std::endl;
     
-   //  cam_info_pub_ = camera_nh_.advertise<sensor_msgs::Image> (depthImage_topic_, 30);
+     cam_info_pub_ = camera_nh_.advertise<sensor_msgs::CameraInfo> (camInfo_topic_, 30);
     
             
     
