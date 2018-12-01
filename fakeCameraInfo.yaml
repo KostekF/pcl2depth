@@ -1,20 +1,24 @@
+#image_width: 480
+#image_height: 640
 image_width: 924
-image_height: 24
+image_height: 1280
 camera_name: "fakeSickCamera"
 camera_matrix:
   rows: 3
   cols: 3
-  data: [2302.59, 0, 610.756, 0, 2309.46, 506.539, 0, 0, 1]
+  data: [575.8157348632812, 0.0, 314.5, 0.0, 575.8157348632812, 235.5, 0.0, 0.0, 1.0]
 distortion_model: plumb_bob
 distortion_coefficients:
   rows: 1
   cols: 5
-  data: [0, 0, 0, 0, 0]
+  data: [0.0, 0.0, 0.0, 0.0, 0.0]
 rectification_matrix:
   rows: 3
   cols: 3
-  data: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  data: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
 projection_matrix:
   rows: 3
-  cols: 4
-  data: [575, 0, 314, 0, 0, 2309.46,0, 0, 575, 235, 0, 0]
+  cols: 4  
+  data: [600, 0.0, 412, 0.0, 0.0, 1, 12, 0.0, 0.0, 0.0, 1.0, 0.0]
+
+## projection_matrix:  data: [fx(), 0.0, cx(), 0.0, 0.0, fy(), cy(), 0.0, 0.0, 0.0, 1.0, 0.0]  --fy() nie ma wpływu na nic

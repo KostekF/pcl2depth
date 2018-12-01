@@ -28,7 +28,7 @@ class PointCloud2ToDepth
 {
 public:
   void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& input);
- 
+ void createDepthImage(pcl::PointCloud<pcl::PointXYZ>::Ptr &ptr_cloud);
  PointCloud2ToDepth();
  
 private:
@@ -43,7 +43,7 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_; //camera_info pointer
   ros::NodeHandle camera_nh_;
   ros::Publisher cam_info_pub_; //camera_info message publisher
-    std::string camInfo_topic_; //default output
+    std::string camInfo_topic_; //default camera_info output
 };
 
 #endif

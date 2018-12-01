@@ -1,6 +1,40 @@
 #include "PointCloud2ToDepth.h"
 
+     void PointCloud2ToDepth::createDepthImage(pcl::PointCloud<pcl::PointXYZ>::Ptr &ptr_cloud)
+     {
+         
+        if (!depthImage_.empty())
+            depthImage_.release();
+        
+        //nadanie pustemu obrazowi glebi wymiarow
+        int depthImageHeight=ptr_cloud->height /4;// dzięki funkcji Multi-Echo otrzymujemy 4 echa, z czego korzystam z jednego, głównego
+        int depthImageWidth=ptr_cloud->width;//924
+        depthImage_.create(depthImageHeight,depthImageWidth,CV_32F);  
+        
+        int count =0;
+    //   #pragma omp parallel for //multithreading
 
+        for(int i=0;i<depthImage_.rows;++i)
+            for(int j=0;j<depthImage_.cols;++j)
+            {
+            //Wartosc valOfDepthImagePixel czyli odleglosc od przeszkody w danym pikselu obrazu jest dana w mm
+            float valOfDepthImagePixel=sqrt(pow(ptr_cloud->points.at(count).z,2)+pow(ptr_cloud->points.at(count).x,2)+pow(ptr_cloud->points.at(count).y,2)) *1000;
+            //float valOfDepthImagePixel=ptr_cloud->points.at(count).z *1000;
+                if(valOfDepthImagePixel>0)
+                {
+                depthImage_.at<float>(i,j)=valOfDepthImagePixel; //przypisanie odleglosci do danego piksela obrazu glebi 
+                }
+                else
+                    depthImage_.at<float>(i,j)=0;
+                
+                
+                ++count;
+            }
+    //  std::cout<<depthImage_.rows<<std::endl;
+        depthImage_.convertTo(depthImage_,CV_16U);
+            
+    }
+     
   void PointCloud2ToDepth::cloud_cb(const sensor_msgs::PointCloud2ConstPtr& input)
   {
    
@@ -13,37 +47,10 @@
     pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(pcl_pc2,*ptr_cloud);
     
-     if (!depthImage_.empty())
-        depthImage_.release();
     
-    //nadanie pustemu obrazowi glebi wymiarow
-    int depthImageHeight=ptr_cloud->height /4;// dzięki funkcji Multi-Echo otrzymujemy 4 echa, z czego korzystam z jednego, głównego
-    int depthImageWidth=ptr_cloud->width;//924
-    depthImage_.create(depthImageHeight,depthImageWidth,CV_32F);  
     
-     int count =0;
-     
-
-  //   #pragma omp parallel for //multithreading
-
-    for(int i=0;i<depthImage_.rows;++i)
-        for(int j=0;j<depthImage_.cols;++j)
-        {
-           //Wartosc valOfDepthImagePixel czyli odleglosc od przeszkody w danym pikselu obrazu jest dana w mm
-           float valOfDepthImagePixel=sqrt(pow(ptr_cloud->points.at(count).z,2)+pow(ptr_cloud->points.at(count).x,2)+pow(ptr_cloud->points.at(count).y,2)) *1000;
-          
-            if(valOfDepthImagePixel>0)
-            {
-            depthImage_.at<float>(i,j)=valOfDepthImagePixel; //przypisanie odleglosci do danego piksela obrazu glebi 
-            }
-            else
-                 depthImage_.at<float>(i,j)=0;
-            
-            
-            ++count;
-        }
-  //  std::cout<<depthImage_.rows<<std::endl;
-    depthImage_.convertTo(depthImage_,CV_16U);
+    createDepthImage(ptr_cloud);
+    
         
     
     //changing cv::Mat to sensor_msgs/Image
@@ -52,22 +59,15 @@
 
     std_msgs::Header header; // empty header
     header.stamp = ros::Time::now(); // time
-    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, depthImage_);
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_16UC1, depthImage_);
     img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
   
     
     sensor_msgs::CameraInfoPtr camInfoPtr(new sensor_msgs::CameraInfo(cinfo_->getCameraInfo())); //get current cameraInfo data
     camInfoPtr->header.stamp=header.stamp;
 
-    
-    
-    
     image_pub_.publish(img_msg); 
-            
-    
-    
-    
-       
+ 
     //publish camera_info
    // sensor_msgs:Header cameraHeader;
    // cameraHeader.
