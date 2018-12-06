@@ -1,0 +1,35 @@
+<launch>
+
+
+ <!-- transformacja chmury punktów z node'a depth_image_proc/point_cloud_xyz na wspolrzedne danych z SICK MRS 6000 
+ static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms
+ x/y/z offset in meters and yaw/pitch/roll in radians. (yaw is rotation about Z, pitch is rotation about Y, and roll is rotation about X). 100ms time(10Hz)of sending transform.
+ Robot pochylony o 6stopni do ziemi, na wysokosci okolo 0.6m??   
+ -->
+    <node pkg="tf" type="static_transform_publisher" name="laser_to_virtual_camera_broadcaster" args="0 0 -0.6 1.5708 0 1.4661 /laser /virtual_camera 100" />
+
+
+ <!-- Nodelet manager for this pipeline -->
+  <node pkg="nodelet" type="nodelet" args="manager"
+    name="record_player_manager" output="screen"/>
+  
+  <!-- The depth image is already rectified and registered
+       to the camera optical frame, but stored in mm; convert it
+       to meters -->
+
+  <node pkg="nodelet" type="nodelet" name="metric_rect" 
+        args="load depth_image_proc/convert_metric record_player_manager --no-bond">
+    <remap from="image_raw" to="depthFromPcl/image_raw"/>
+    <remap from="image" to="depthFromPcl/image_metric"/>
+  </node>
+
+  <!-- Convert it into a point cloud -->
+  <node pkg="nodelet" type="nodelet" name="cloudify"
+        args="load depth_image_proc/point_cloud_xyz record_player_manager --no-bond">
+  
+   <remap from="image_rect" to="depthFromPcl/image_metric"/>
+ <remap from="points" to="depthFromPcl/points"/>
+ <remap from="camera_info" to="depthFromPcl/camera_info"/>
+</node>
+ 
+</launch>

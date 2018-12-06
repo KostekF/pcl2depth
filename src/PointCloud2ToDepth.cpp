@@ -59,13 +59,18 @@
 
     std_msgs::Header header; // empty header
     header.stamp = ros::Time::now(); // time
+    
+    header.frame_id="virtual_camera";//delete?
+    
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_16UC1, depthImage_);
     img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
   
     
     sensor_msgs::CameraInfoPtr camInfoPtr(new sensor_msgs::CameraInfo(cinfo_->getCameraInfo())); //get current cameraInfo data
     camInfoPtr->header.stamp=header.stamp;
-
+    
+    camInfoPtr->header.frame_id="virtual_camera"; //delete?
+     //camInfoPtr->header.origin
     image_pub_.publish(img_msg); 
  
     //publish camera_info
@@ -83,7 +88,7 @@
   }
 
  
- PointCloud2ToDepth::PointCloud2ToDepth() : cloud_topic_("sick_mrs6xxx/cloud"),depthImage_topic_("depthFromPcl"),camInfo_topic_("camera/camera_info")
+ PointCloud2ToDepth::PointCloud2ToDepth() : cloud_topic_("sick_mrs6xxx/cloud"),depthImage_topic_("depthFromPcl/image_raw"),camInfo_topic_("depthFromPcl/camera_info")
   {
       ///DO i need two node handlers for two topics? or another node handle for camera info?
       
