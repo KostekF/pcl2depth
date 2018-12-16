@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <!-- run pcl2depth node -->
+    <node pkg="pcl2depth" type="pcl2depth" name="pcl2depth" output="screen" >
+
+        <remap from="cloud_in" to="sick_mrs6xxx/cloud"/>
+         <remap from="camera_info" to="depthFromPcl/camera_info"/>
+        <remap from="depth_image" to="depthFromPcl/image_raw"/>
+
+    </node>
+
+</launch>
