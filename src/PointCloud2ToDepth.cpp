@@ -3,6 +3,7 @@
      void PointCloud2ToDepth::createDepthImage(pcl::PointCloud<pcl::PointXYZ>::Ptr &ptr_cloud)
      {
          
+         
         if (!depthImage_.empty())
             depthImage_.release();
         
@@ -11,12 +12,17 @@
         //int depthImageHeight=ptr_cloud->height; //KINECT
         int depthImageWidth=ptr_cloud->width;//924
         depthImage_.create(depthImageHeight,depthImageWidth,CV_32F);  
-
-      
+        depthImage_=0;
+   
         
         const int m_to_mm=1000;
+              // std::cout<<"size: "<<ptr_cloud->size()/4<<std::endl;
                
-        //   #pragma omp parallel for //multithreading
+               
+     
+               
+            
+        #pragma omp parallel for //multithreading
         for(int v=0;v<depthImage_.rows;++v)
         
         {
@@ -26,16 +32,17 @@
             {
                 //float valOfDepthImagePixel=sqrt(pow(ptr_cloud->points.at(count).z,2)+pow(ptr_cloud->points.at(count).x,2)+pow(ptr_cloud->points.at(count).y,2)) *1000;
                 float valOfDepthImagePixel=ptr_cloud->points.at(v*924 +u).x*m_to_mm;
-           
-                 if(valOfDepthImagePixel>0)
+                
+            
+                 if(valOfDepthImagePixel>0 )
                 {
                 depthImage_.at<float>(v,u)=valOfDepthImagePixel; //przypisanie odleglosci do danego piksela obrazu glebi 
                 }
-                else
-                    depthImage_.at<float>(v,u)=0;         
+               // else
+                   // depthImage_.at<float>(v,u)=std::numeric_limits::quiet_NaN;      //delete?   
             } 
         }
-        
+    
         depthImage_.convertTo(depthImage_,CV_16U);
      }
   void PointCloud2ToDepth::cloud_cb(const sensor_msgs::PointCloud2ConstPtr& input)
@@ -43,7 +50,9 @@
    
     try
     {
-    
+
+
+
         //zamiana chmury z postaci PointCloud2 na pcl pointcloud
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*input,pcl_pc2);
@@ -73,6 +82,7 @@
  
     //publish camera_info
     cam_info_pub_.publish(camInfoPtr);
+
     }
     catch (std::runtime_error e)
     {
